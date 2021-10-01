@@ -2,6 +2,8 @@ package com.bharatapp.retrofit.NavFragment;
 
 import com.bharatapp.retrofit.ModelPost.RegisterPost;
 import com.bharatapp.retrofit.ModelResponse.RegisterResponse;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -13,7 +15,7 @@ import retrofit2.http.POST;
 public interface Api {
 
     @POST("Auth/register")
-    Call<RegisterResponse>register(
-            @Body RegisterPost registerPost
+    Call<String>register(
+            @Body JsonObject jsonObject
             );
 }

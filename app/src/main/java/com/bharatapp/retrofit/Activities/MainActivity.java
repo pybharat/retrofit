@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.media.MediaCodec;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
@@ -14,6 +15,8 @@ import com.bharatapp.retrofit.ModelPost.RegisterPost;
 import com.bharatapp.retrofit.ModelResponse.RegisterResponse;
 import com.bharatapp.retrofit.NavFragment.RetrofitClient;
 import com.bharatapp.retrofit.R;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import java.util.regex.Pattern;
 
@@ -24,6 +27,7 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity {
 EditText email,name,number,password;
 Button register;
+RetrofitClient retrofitClient;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,6 +37,8 @@ Button register;
         number=findViewById(R.id.number);
         password=findViewById(R.id.password);
         register=findViewById(R.id.register);
+
+        retrofitClient=new RetrofitClient();
         register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -82,27 +88,25 @@ Button register;
             password.setError("Minimum 8 characters");
             return;
         }
+        JsonObject jsonObject=new JsonObject();
+        jsonObject.addProperty("email",useremail);
+        jsonObject.addProperty("name",username);
+        jsonObject.addProperty("number",usernumber);
+        jsonObject.addProperty("password",userpassword);
+Log.d("bharat123",jsonObject.toString());
 
-        RegisterPost registerPost=new RegisterPost(useremail,username,usernumber,userpassword);
-        Call<RegisterResponse> call= RetrofitClient
-                .getInstance()
-                .getApi()
-                .register(registerPost);
-        call.enqueue(new Callback<RegisterResponse>() {
+        retrofitClient.getWebService().register(jsonObject).enqueue(new Callback<String>() {
             @Override
-            public void onResponse(Call<RegisterResponse> call, Response<RegisterResponse> response) {
-                RegisterResponse registerResponse=response.body();
-                if(response.isSuccessful())
-                {
-                    Toast.makeText(MainActivity.this, registerResponse.getUserid()+" "+registerResponse.getCode()+" "+registerResponse.getOtp()+" "+registerResponse.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-                else
-                    Toast.makeText(MainActivity.this, registerResponse.getMessage(), Toast.LENGTH_SHORT).show();
+            public void onResponse(Call<String> call, Response<String> response) {
+
+               Log.d("bharat123",response.message());
+
             }
 
             @Override
-            public void onFailure(Call<RegisterResponse> call, Throwable t) {
-                Toast.makeText(MainActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+            public void onFailure(Call<String> call, Throwable t) {
+
+                Toast.makeText(MainActivity.this, t.toString(), Toast.LENGTH_SHORT).show();
             }
         });
     }
