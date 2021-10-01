@@ -18,6 +18,10 @@ import com.bharatapp.retrofit.R;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.regex.Pattern;
 
 import retrofit2.Call;
@@ -27,6 +31,8 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity {
 EditText email,name,number,password;
 Button register;
+int otp,userid;
+String msg;
 RetrofitClient retrofitClient;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,31 +64,31 @@ RetrofitClient retrofitClient;
             email.setError("Enter Email");
             return;
         }
-        if(!Patterns.EMAIL_ADDRESS.matcher(useremail).matches())
+        else if(!Patterns.EMAIL_ADDRESS.matcher(useremail).matches())
         {
             email.requestFocus();
             email.setError("please enter correct Email");
             return;
         }
-        if(username.isEmpty())
+        else if(username.isEmpty())
         {
             name.requestFocus();
             name.setError("Enter name");
             return;
         }
-        if(usernumber.isEmpty())
+        else if(usernumber.isEmpty())
         {
             number.requestFocus();
             number.setError("Enter Number");
             return;
         }
-        if(userpassword.isEmpty())
+        else if(userpassword.isEmpty())
         {
             password.requestFocus();
             password.setError("Enter Password");
             return;
         }
-        if(userpassword.length()<8)
+        else if(userpassword.length()<8)
         {
             password.requestFocus();
             password.setError("Minimum 8 characters");
@@ -98,8 +104,31 @@ Log.d("bharat123",jsonObject.toString());
         retrofitClient.getWebService().register(jsonObject).enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
+                if(response.isSuccessful()) {
+                    try {
+                        JSONObject obj = new JSONObject(response.body());
+                        if(Integer.parseInt(obj.get("code").toString())==200)
+                        {
+                        otp=Integer.parseInt(obj.get("otp").toString());
+                        userid=Integer.parseInt(obj.get("userid").toString());
+                        Toast.makeText(MainActivity.this,String.valueOf(otp)+"  "+String.valueOf(userid), Toast.LENGTH_SHORT).show();
+                        }
+                        else if(Integer.parseInt(obj.get("code").toString())==400) {
+                            msg= obj.getString("message");
+                            Toast.makeText(MainActivity.this,msg, Toast.LENGTH_SHORT).show();
+                        }
+                        Log.d("bharat123", String.valueOf(otp)+"  "+String.valueOf(userid));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
 
-               Log.d("bharat123",response.message());
+                    Log.d("bharat123", response.body());
+
+                }
+                else
+                {
+                    Toast.makeText(MainActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+                }
 
             }
 
